@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1e40af;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔐 Admin Login Test</h2>
+    
+    <input type="email" id="email" placeholder="Email" value="admin@phoneza.az">
+    <input type="password" id="password" placeholder="Password" value="admin123456">
+    <button onclick="login()">Login</button>
+    
+    <div class="result" id="result"></div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('result').innerHTML = `
+                        <h3 style="color: green;">✅ Login uğurlu!</h3>
+                        <p><strong>Admin:</strong> ${data.admin.name}</p>
+                        <p><strong>Email:</strong> ${data.admin.email}</p>
+                        <p><strong>Role:</strong> ${data.admin.role}</p>
+                        <p><strong>Token:</strong> ${data.token.substring(0, 50)}...</p>
+                    `;
+                    
+                    // Token-i localStorage-ə save et
+                    localStorage.setItem('adminToken', data.token);
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        <h3 style="color: red;">❌ Xəta!</h3>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3 style="color: red;">❌ Xəta!</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
