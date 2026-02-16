@@ -22,15 +22,17 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => {
     console.error('❌ MongoDB qoşulma xətası:', err.message);
   });
-
-// Routes
 const authRoutes = require('./src/routes/authRoutes');
 const productRoutes = require('./src/routes/productRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const cartRoutes = require('./src/routes/cartRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-
-// Test Route
+app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/upload', uploadRoutes);
 app.get('/', (req, res) => {
   res.json({ 
     message: 'PHONEZA API işləyir! 🦁',

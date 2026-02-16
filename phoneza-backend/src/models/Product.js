@@ -21,10 +21,14 @@ const productSchema = new mongoose.Schema({
     enum: ['Qablolar', 'Case-lər', 'Ekran Qoruyucuları', 'Şarj Cihazları', 
            'Qulaqcıqlar', 'Power Bank', 'Holder-lər', 'Aksesuarlar']
   },
-  image: {
-    type: String,
-    default: '📱'
-  },
+image: {
+  type: String,
+  default: 'https://via.placeholder.com/400x400?text=No+Image'
+},
+imagePublicId: {
+  type: String,
+  default: null
+},
   stock: {
     type: Number,
     default: 0,

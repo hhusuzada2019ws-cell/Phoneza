@@ -1,0 +1,78 @@
+name: PHONEZA CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Backend Tests
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install Backend Dependencies
+        working-directory: ./phoneza-backend
+        run: npm ci
+      - name: Run Backend Tests
+        working-directory: ./phoneza-backend
+        run: npm test
+      - name: Lint Backend Code
+        working-directory: ./phoneza-backend
+        run: npm run lint || echo "No lint script"
+
+  # Frontend Tests
+  frontend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install Frontend Dependencies
+        working-directory: ./phoneza-frontend
+        run: npm ci
+      - name: Run Frontend Tests
+        working-directory: ./phoneza-frontend
+        run: npm test -- --passWithNoTests
+      - name: Build Frontend
+        working-directory: ./phoneza-frontend
+        run: npm run build
+
+  # Deploy Backend
+  deploy-backend:
+    needs: [backend-test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Railway
+        run: |
+          echo "Deploying backend to Railway..."
+          # Railway CLI commands
+
+  # Deploy Frontend
+  deploy-frontend:
+    needs: [frontend-test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Vercel
+        run: |
+          echo "Deploying frontend to Vercel..."
+          # Vercel CLI commands
+
+  # Notification
+  notify:
+    needs: [deploy-backend, deploy-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Success Notification
+        run: echo "✅ PHONEZA successfully deployed!"

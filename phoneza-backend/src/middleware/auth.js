@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
+const User = require('../models/User');
 
+// Admin protection
 exports.protect = async (req, res, next) => {
   let token;
 
@@ -23,6 +25,41 @@ exports.protect = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Admin tapılmadı və ya deaktivdir'
+      });
+    }
+    
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token yanlışdır və ya vaxtı keçib'
+    });
+  }
+};
+
+// User protection
+exports.protectUser = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Bu əməliyyat üçün login olmalısınız'
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id);
+    
+    if (!req.user || !req.user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'İstifadəçi tapılmadı və ya deaktivdir'
       });
     }
     

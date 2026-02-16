@@ -46,7 +46,14 @@ exports.getProduct = async (req, res) => {
 // Yeni məhsul yarat
 exports.createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const productData = {
+      ...req.body,
+      image: req.body.image || 'https://via.placeholder.com/400x400?text=No+Image',
+      imagePublicId: req.body.imagePublicId || null
+    };
+    
+    const product = await Product.create(productData);
+    
     res.status(201).json({
       success: true,
       message: 'Məhsul əlavə edildi',

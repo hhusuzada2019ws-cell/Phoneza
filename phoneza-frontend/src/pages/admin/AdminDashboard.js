@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ProductForm from '../../components/admin/ProductForm';
-import EditProductForm from '../../components/admin/EditProductForm';
 import './AdminDashboard.css';
-
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null);
   const [products, setProducts] = useState([]);
@@ -183,12 +181,26 @@ function AdminDashboard() {
               <tbody>
                 {products.map(product => (
                   <tr key={product._id}>
-                    <td>
-                      <div className="product-cell">
-                        <span className="product-icon">{product.image}</span>
-                        <span>{product.name}</span>
-                      </div>
-                    </td>
+                   <td>
+  <div className="product-cell">
+    {product.image && product.image.startsWith('http') ? (
+      <img 
+        src={product.image} 
+        alt={product.name}
+        className="product-icon"
+        style={{
+          width: '50px',
+          height: '50px',
+          objectFit: 'cover',
+          borderRadius: '8px'
+        }}
+      />
+    ) : (
+      <span className="product-icon">{product.image || '📱'}</span>
+    )}
+    <span>{product.name}</span>
+  </div>
+</td>
                     <td><strong>{product.price} AZN</strong></td>
                     <td>{product.category}</td>
                     <td>{product.stock}</td>
@@ -199,12 +211,12 @@ function AdminDashboard() {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button 
-                          className="btn-edit"
-                          onClick={() => setEditingProduct(product)}
-                        >
-                          ✏️
-                        </button>
+                       <button 
+  className="btn-edit"
+  onClick={() => setEditingProduct(product)}
+>
+  ✏️
+</button>
                         <button 
                           className="btn-delete"
                           onClick={() => deleteProduct(product._id)}
@@ -220,26 +232,27 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {showProductForm && (
-          <ProductForm
-            onClose={() => setShowProductForm(false)}
-            onSuccess={() => {
-              const token = localStorage.getItem('adminToken');
-              fetchProducts(token);
-            }}
-          />
-        )}
+    {showProductForm && (
+  <ProductForm
+    onClose={() => setShowProductForm(false)}
+    onSuccess={() => {
+      const token = localStorage.getItem('adminToken');
+      fetchProducts(token);
+    }}
+  />
+)}
 
-        {editingProduct && (
-          <EditProductForm
-            product={editingProduct}
-            onClose={() => setEditingProduct(null)}
-            onSuccess={() => {
-              const token = localStorage.getItem('adminToken');
-              fetchProducts(token);
-            }}
-          />
-        )}
+{editingProduct && (
+  <ProductForm
+    product={editingProduct}
+    onClose={() => setEditingProduct(null)}
+    onSuccess={() => {
+      const token = localStorage.getItem('adminToken');
+      fetchProducts(token);
+    }}
+  />
+)}
+
       </main>
     </div>
   );

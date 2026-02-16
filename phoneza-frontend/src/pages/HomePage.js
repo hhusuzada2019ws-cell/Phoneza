@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 
@@ -6,25 +7,59 @@ function HomePage() {
   const [cartCount, setCartCount] = useState(0);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/products');
-        setProducts(response.data.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Məhsullar yüklənmədi:', error);
-        setLoading(false);
-      }
-    };
+ useEffect(() => {
+  // User məlumatını yüklə
+  const userData = localStorage.getItem('userData');
+  if (userData) {
+    setUser(JSON.parse(userData));
+  }
 
-    fetchProducts();
-  }, []);
-
-  const addToCart = () => {
-    setCartCount(cartCount + 1);
+  // Məhsulları yüklə
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/products');
+      setProducts(response.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Məhsullar yüklənmədi:', error);
+      setLoading(false);
+    }
   };
+
+  fetchProducts();
+}, []);
+
+  const addToCart = async (productId) => {
+  // User login yoxla
+  if (!user) {
+    alert('Səbətə əlavə etmək üçün daxil olun!');
+    window.location.href = '/login';
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('userToken');
+    
+    const response = await axios.post(
+      'http://localhost:5000/api/cart',
+      { productId, quantity: 1 },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (response.data.success) {
+      setCartCount(cartCount + 1);
+      alert('✅ Məhsul səbətə əlavə edildi!');
+    }
+  } catch (error) {
+    alert('❌ Xəta: ' + (error.response?.data?.message || 'Səbətə əlavə edilmədi'));
+  }
+};
 
   const categories = [
     'Qablolar', 'Case-lər', 'Ekran Qoruyucuları', 'Şarj Cihazları', 
@@ -48,13 +83,30 @@ function HomePage() {
             <input type="text" placeholder="🔍 Məhsul axtar..." />
           </div>
 
-          <div className="header-icons">
-            <button className="icon-btn">❤️</button>
-            <button className="icon-btn">
-              🛒 {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
-            </button>
-            <a href="/admin/login" className="icon-btn">👤</a>
-          </div>
+         <div className="header-icons">
+  <button className="icon-btn">❤️</button>
+  <Link to="/cart" className="icon-btn">
+  🛒 {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+</Link>
+  {user ? (
+    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+      <span style={{fontSize: '14px', color: '#475569'}}>Salam, {user.name}</span>
+      <button 
+        onClick={() => {
+          localStorage.removeItem('userToken');
+          localStorage.removeItem('userData');
+          setUser(null);
+          alert('Çıxış etdiniz');
+        }}
+        className="icon-btn"
+      >
+        🚪
+      </button>
+    </div>
+  ) : (
+    <a href="/login" className="icon-btn">👤</a>
+  )}
+</div>
         </div>
 
         <div className="categories">
@@ -122,14 +174,31 @@ function HomePage() {
                 .map((product) => (
                   <div key={product._id} className="product-card">
                     <div className="product-image">
-                      {product.image}
-                      {product.tag && <span className="product-tag">{product.tag}</span>}
-                    </div>
+  {product.image && product.image.startsWith('http') ? (
+    <img 
+      src={product.image} 
+      alt={product.name}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover'
+      }}
+    />
+  ) : (
+    <span style={{fontSize: '80px'}}>{product.image || '📱'}</span>
+  )}
+  {product.tag && <span className="product-tag">{product.tag}</span>}
+</div>
                     <div className="product-info">
                       <div className="product-name">{product.name}</div>
                       <div className="product-footer">
                         <span className="product-price">{product.price} AZN</span>
-                        <button className="add-to-cart" onClick={addToCart}>Səbətə at</button>
+                        <button 
+  className="add-to-cart" 
+  onClick={() => addToCart(product._id)}
+>
+  Səbətə at
+</button>
                       </div>
                     </div>
                   </div>
@@ -173,9 +242,9 @@ function HomePage() {
           <div>
             <h4>Əlaqə</h4>
             <ul>
-              <li>📞 +994 XX XXX XX XX</li>
+              <li>📞 +994 55 529 94 86</li>
               <li>📧 info@phoneza.az</li>
-              <li>📍 Bakı, Azərbaycan</li>
+              <li>📍 Bakı, Azərbaycan</li>ü
             </ul>
           </div>
         </div>
