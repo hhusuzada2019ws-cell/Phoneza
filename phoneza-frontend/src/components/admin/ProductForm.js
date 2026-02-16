@@ -59,7 +59,7 @@ function ProductForm({ product, onClose, onSuccess }) {
       formDataUpload.append('image', file);
 
       const response = await axios.post(
-        'http://localhost:5000/api/upload',
+        `${process.env.REACT_APP_API_URL}/api/upload`,
         formDataUpload,
         {
           headers: {
@@ -94,8 +94,8 @@ function ProductForm({ product, onClose, onSuccess }) {
       const token = localStorage.getItem('adminToken');
       
       const url = product 
-        ? `http://localhost:5000/api/products/${product._id}` 
-        : 'http://localhost:5000/api/products';
+        ? `${process.env.REACT_APP_API_URL}/api/products/${product._id}`
+        : `${process.env.REACT_APP_API_URL}/api/products`;
       
       const method = product ? 'put' : 'post';
       

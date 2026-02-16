@@ -19,7 +19,7 @@ function HomePage() {
   // Məhsulları yüklə
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/products`);
       setProducts(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -43,7 +43,7 @@ function HomePage() {
     const token = localStorage.getItem('userToken');
     
     const response = await axios.post(
-      'http://localhost:5000/api/cart',
+      `${process.env.REACT_APP_API_URL}/api/cart`,
       { productId, quantity: 1 },
       {
         headers: {

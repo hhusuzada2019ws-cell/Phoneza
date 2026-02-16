@@ -41,7 +41,7 @@ const EditProductForm = ({ product, onClose, onSuccess }) => {
       const token = localStorage.getItem('adminToken');
       
       const response = await axios.put(
-        `http://localhost:5000/api/products/${product._id}`,
+        `${process.env.REACT_APP_API_URL}/api/products/${product._id}`,
         {
           ...formData,
           price: parseFloat(formData.price),

@@ -30,7 +30,7 @@ function AdminDashboard() {
 
   const fetchProducts = async (token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/products`);
       const prods = response.data.data;
       setProducts(prods);
 
@@ -60,7 +60,7 @@ function AdminDashboard() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
