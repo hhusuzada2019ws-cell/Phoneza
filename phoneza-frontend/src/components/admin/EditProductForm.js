@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import './ProductForm.css';
 
 const EditProductForm = ({ product, onClose, onSuccess }) => {
@@ -38,22 +38,12 @@ const EditProductForm = ({ product, onClose, onSuccess }) => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('adminToken');
-      
-      const response = await axios.put(
-        `http://localhost:5000/api/products/${product._id}`,
-        {
-          ...formData,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-          tag: formData.tag || null
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await api.put(`/api/products/${product._id}`, {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        tag: formData.tag || null
+      });
 
       if (response.data.success) {
         alert('✅ Məhsul yeniləndi!');

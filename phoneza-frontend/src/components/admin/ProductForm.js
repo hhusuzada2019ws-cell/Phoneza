@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import './ProductForm.css';
 
 function ProductForm({ product, onClose, onSuccess }) {
@@ -54,20 +54,12 @@ function ProductForm({ product, onClose, onSuccess }) {
     setUploading(true);
 
     try {
-      const token = localStorage.getItem('adminToken');
       const formDataUpload = new FormData();
       formDataUpload.append('image', file);
 
-      const response = await axios.post(
-        'http://localhost:5000/api/upload',
-        formDataUpload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
+      const response = await api.post('/api/upload', formDataUpload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       if (response.data.success) {
         setFormData(prev => ({
@@ -91,28 +83,15 @@ function ProductForm({ product, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('adminToken');
-      
-      const url = product 
-        ? `http://localhost:5000/api/products/${product._id}` 
-        : 'http://localhost:5000/api/products';
-      
+      const url = product ? `/api/products/${product._id}` : '/api/products';
       const method = product ? 'put' : 'post';
-      
-      const response = await axios[method](
-        url,
-        {
-          ...formData,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-          tag: formData.tag || null
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+
+      const response = await api[method](url, {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        tag: formData.tag || null
+      });
 
       if (response.data.success) {
         alert(product ? '✅ Məhsul yeniləndi!' : '✅ Məhsul əlavə edildi!');

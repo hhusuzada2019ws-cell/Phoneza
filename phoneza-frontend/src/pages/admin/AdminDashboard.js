@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import api from '../../api';
 import ProductForm from '../../components/admin/ProductForm';
 import './AdminDashboard.css';
 function AdminDashboard() {
@@ -25,12 +25,12 @@ function AdminDashboard() {
     }
 
     setAdmin(JSON.parse(adminData));
-    fetchProducts(token);
+    fetchProducts();
   }, [navigate]);
 
-  const fetchProducts = async (token) => {
+  const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await api.get('/api/products');
       const prods = response.data.data;
       setProducts(prods);
 
@@ -59,15 +59,9 @@ function AdminDashboard() {
     }
 
     try {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
+      await api.delete(`/api/products/${id}`);
       alert('Məhsul silindi!');
-      fetchProducts(token);
+      fetchProducts();
     } catch (error) {
       alert('Xəta: ' + (error.response?.data?.message || 'Məhsul silinmədi'));
     }
@@ -86,21 +80,15 @@ function AdminDashboard() {
         </div>
 
         <nav className="sidebar-nav">
-          <a href="#" className="nav-item active">
+          <Link to="/admin/dashboard" className="nav-item active">
             📊 Dashboard
-          </a>
-          <a href="#" className="nav-item">
-            📦 Məhsullar
-          </a>
+          </Link>
           <a href="#" className="nav-item">
             🛒 Sifarişlər
           </a>
-          <a href="#" className="nav-item">
+          <Link to="/admin/users" className="nav-item">
             👥 Müştərilər
-          </a>
-          <a href="#" className="nav-item">
-            ⚙️ Tənzimləmələr
-          </a>
+          </Link>
         </nav>
 
         <div className="sidebar-footer">
@@ -236,8 +224,7 @@ function AdminDashboard() {
   <ProductForm
     onClose={() => setShowProductForm(false)}
     onSuccess={() => {
-      const token = localStorage.getItem('adminToken');
-      fetchProducts(token);
+      fetchProducts();
     }}
   />
 )}
@@ -247,8 +234,7 @@ function AdminDashboard() {
     product={editingProduct}
     onClose={() => setEditingProduct(null)}
     onSuccess={() => {
-      const token = localStorage.getItem('adminToken');
-      fetchProducts(token);
+      fetchProducts();
     }}
   />
 )}
