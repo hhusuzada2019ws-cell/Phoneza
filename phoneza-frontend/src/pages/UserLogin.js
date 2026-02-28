@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import './UserAuth.css';
 
 const UserLogin = () => {
@@ -25,7 +25,7 @@ const UserLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      const response = await api.post('/api/users/login', formData);
 
       if (response.data.success) {
         localStorage.setItem('userToken', response.data.token);
@@ -87,6 +87,7 @@ const UserLogin = () => {
 
         <div className="auth-footer">
           <p>Hesabınız yoxdur? <Link to="/register">Qeydiyyatdan keç</Link></p>
+          <p><Link to="/forgot-password">Şifrəni unutmusunuz?</Link></p>
           <Link to="/">← Ana səhifəyə qayıt</Link>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import './Cart.css';
 
 const Cart = () => {
@@ -21,16 +21,12 @@ const Cart = () => {
     }
 
     setUser(JSON.parse(userData));
-    fetchCart(token);
+    fetchCart();
   }, [navigate]);
 
-  const fetchCart = async (token) => {
+  const fetchCart = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/cart', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await api.get('/api/cart');
 
       setCart(response.data.cart);
       setLoading(false);
@@ -44,19 +40,8 @@ const Cart = () => {
     if (quantity < 1) return;
 
     try {
-      const token = localStorage.getItem('userToken');
-      
-      await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
-        { quantity },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      fetchCart(token);
+      await api.put(`/api/cart/${productId}`, { quantity });
+      fetchCart();
     } catch (error) {
       alert('Xəta: ' + (error.response?.data?.message || 'Yenilənmədi'));
     }
@@ -68,15 +53,8 @@ const Cart = () => {
     }
 
     try {
-      const token = localStorage.getItem('userToken');
-      
-      await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      fetchCart(token);
+      await api.delete(`/api/cart/${productId}`);
+      fetchCart();
       alert('✅ Məhsul səbətdən çıxarıldı');
     } catch (error) {
       alert('Xəta: ' + (error.response?.data?.message || 'Çıxarılmadı'));
@@ -173,9 +151,9 @@ const Cart = () => {
               Sifarişi tamamla
             </button>
 
-            <Link to="/" className="continue-shopping">
-              Alış-verişə davam et →
-            </Link>
+        <Link to="/checkout" className="checkout-btn">
+  Sifarişi tamamla
+</Link>
           </div>
         </div>
       )}
